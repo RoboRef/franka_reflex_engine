@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>reflex_mc_impl</name>
+  <version>0.0.0</version>
+  <description>ros2_control plugin (ReflexMCController) that embeds reflex_engine's
+    SimpleReflexEngine alongside a pool of reflex_controllers sub-controllers,
+    providing transparent runtime controller switching in response to safety events.</description>
+  <maintainer email="jon.skerlj@gmail.com">Jon Skerlj</maintainer>
+  <author email="jon.skerlj@gmail.com">Jon Skerlj</author>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>controller_interface</depend>
+  <depend>pluginlib</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>hardware_interface</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>franka_msgs</depend>
+  <depend>franka_semantic_components</depend>
+  <depend>reflex_controllers</depend>
+  <depend>reflex_engine</depend>
+  <depend>multi_mode_control_msgs</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

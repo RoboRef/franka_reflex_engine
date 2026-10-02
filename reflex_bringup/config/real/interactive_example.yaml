@@ -1,0 +1,123 @@
+# Controller config for the gravity-comp + reflex test (single real Panda arm).
+#
+# Default behaviour  : low-stiffness joint impedance → feels like gravity compensation.
+# Collision reflex   : switches to panda_zero_g_controller (fully backdrivable).
+# Limit reflex       : switches to panda_stop_controller (gentle braking).
+# Recovery           : push the EE (> gesture_threshold N) OR call:
+#                        ros2 service call /panda/recover std_srvs/srv/Empty
+
+controller_manager:
+  ros__parameters:
+    update_rate: 1000  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    franka_robot_state_broadcaster:
+      type: franka_robot_state_broadcaster/FrankaRobotStateBroadcaster
+
+    franka_robot_model_broadcaster:
+      type: franka_robot_state_broadcaster/FrankaRobotModelBroadcaster
+
+    reflex_multimode_controller:
+      type: reflex_mc_impl/ReflexMCController
+
+
+# ── Franka state/model broadcasters ──────────────────────────────────────────
+franka_robot_state_broadcaster:
+  ros__parameters:
+    arm_id: panda
+
+franka_robot_model_broadcaster:
+  ros__parameters:
+    arm_id: panda
+
+
+# ── Reflex multimode controller ───────────────────────────────────────────────
+reflex_multimode_controller:
+  ros__parameters:
+    reflex: true   # enables SimpleReflexEngine safety state machine
+
+    # ── Robot configuration ───────────────────────────────────────────────
+    arm_count: 1
+    arm_1:
+      arm_id: panda
+
+    # Sub-controllers available to the engine (must all be listed here)
+    controllers:
+      - panda_joint_impedance_controller   # nominal: gravity-comp feel
+      - panda_zero_g_controller            # collision reflex: fully backdrivable
+      - panda_stop_controller              # limit reflex: gentle brake
+      - panda_move_to_start_controller     # recovery: return to home pose
+
+    resources:
+      panda_joint_impedance_controller:  [panda]
+      panda_zero_g_controller:           [panda]
+      panda_stop_controller:             [panda]
+      panda_move_to_start_controller:    [panda]
+
+    # Start with gravity-comp (joint impedance with low stiffness)
+    start_controllers:
+      names: [panda_joint_impedance_controller]
+      resources:
+        panda_joint_impedance_controller: [panda]
+
+    # ── Per-arm safety parameters ─────────────────────────────────────────
+    panda:
+      base_frame: panda_link0
+      ee_frame:   panda_link8
+
+      contact_detection:
+        detection_frame: panda_link8
+
+      # Joint position limits (rad) — Franka Panda hardware limits
+      joint_position_limits:
+        q_min: [-2.8973, -1.7628, -2.8973, -3.0718, -2.8973, -0.0175, -2.8973]
+        q_max: [ 2.8973,  1.7628,  2.8973, -0.0698,  2.8973,  3.7525,  2.8973]
+
+      joint_position_buffers:
+        joint_limit_buffer:    0.20   # rad — trigger reflex this far from the limit
+        recovery_limit_buffer: 0.10   # rad — relaxed margin during recovery
+
+      # Joint velocity limits (rad/s) — Franka Panda hardware limits
+      joint_velocity_limits:
+        qd_max:                    [2.1750, 2.1750, 2.1750, 2.1750, 2.6100, 2.6100, 2.6100]
+        joint_velocity_soft_buffer: 0.20   # rad/s — apply virtual damping above (qd_max - soft_buffer)
+        joint_velocity_hard_buffer: 0.10   # rad/s — trigger stop reflex above (qd_max - hard_buffer)
+        joint_velocity_damping_gains: [500.0, 500.0, 500.0, 500.0, 500.0, 500.0, 500.0]
+
+      # Collision thresholds — deliberately conservative for a gravity-comp test
+      collision_thresholds:
+        tau_max:  [12.0, 12.0, 9.0, 9.0, 6.0, 6.0, 4.0]  # Nm per joint
+        F_max_EE: 15.0  # N  — external force at EE triggering reflex
+        W_max_EE: 10.0  # Nm — external torque at EE triggering reflex
+
+      # ── Reflex routing ────────────────────────────────────────────────
+      reflexes:
+        reflex_for_collision:      panda_zero_g_controller
+        reflex_for_joint_pos_limit: panda_stop_controller
+        reflex_for_joint_vel_limit: panda_stop_controller
+
+      nominal_controller: panda_joint_impedance_controller
+
+      # ── Recovery ─────────────────────────────────────────────────────
+      # Home pose: arm roughly upright / candle pose, safe for all workspaces.
+      # Adjust to match your physical setup.
+      recovery_goal_position: [0.0, -0.785398, 0.0, -2.35619, 0.0, 1.57079, 0.785398]
+
+      enable_gesture_recovery: true
+      gesture_threshold:       15.0   # N — EE force needed to trigger gesture recovery
+      recovery_cooldown_time:   3.0   # s — minimum wait after reflex before accepting gesture
+
+      verbose_logging: true
+
+    # ── Sub-controller gains ─────────────────────────────────────────────────
+    # Low stiffness → robot feels compliant / close to gravity compensation.
+    # Increase k_gains if you want stiffer position holding.
+    panda_joint_impedance_controller:
+      k_gains: [5.0, 5.0, 5.0, 5.0, 3.0, 2.0, 1.0]   # Nm/rad  (soft!)
+      d_gains: [1.0, 1.0, 1.0, 0.5, 0.5, 0.3, 0.2]   # Nms/rad
+
+    panda_move_to_start_controller:
+      k_gains: [600.0, 600.0, 600.0, 600.0, 250.0, 150.0, 50.0]
+      d_gains: [ 30.0,  30.0,  30.0,  30.0,  10.0,  10.0,  5.0]

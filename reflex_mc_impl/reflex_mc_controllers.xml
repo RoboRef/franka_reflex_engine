@@ -1,0 +1,26 @@
+<library path="reflex_mc_impl">
+    <class name="reflex_mc_impl/ReflexMCController"
+           type="reflex_mc_controller::ReflexMCController" base_class_type="controller_interface::ControllerInterface">
+        <description>
+            The core multi mode controller to be loaded by controller_manager
+        </description>
+    </class>
+    <class name="reflex_mc_impl/StandardJointImpedanceController"
+           type="reflex_mc_controller::StandardJointImpedanceController" base_class_type="controller_interface::ControllerInterface">
+        <description>
+            Standard ros2_control Joint Impedance Controller
+        </description>
+    </class>
+    <class name="reflex_mc_impl/StandardMoveToStartController"
+           type="reflex_mc_controller::StandardMoveToStartController" base_class_type="controller_interface::ControllerInterface">
+        <description>
+            Standard ros2_control Move To Start Controller
+        </description>
+    </class>
+    <class name="reflex_mc_impl/StandardWipingController"
+           type="reflex_mc_controller::StandardWipingController" base_class_type="controller_interface::ControllerInterface">
+        <description>
+            Standard ros2_control Wiping Controller
+        </description>
+    </class>
+</library>
