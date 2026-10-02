@@ -127,9 +127,9 @@ colcon build --packages-select \
   --cmake-args -DCMAKE_BUILD_TYPE=Release
 
 source install/setup.bash
+```
 
 ## Running the Interactive Example
-
 ### Launch
 
 ```bash
