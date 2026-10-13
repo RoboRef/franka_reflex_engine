@@ -159,7 +159,7 @@ def generate_launch_description():
         Node(
             package='controller_manager',
             executable='spawner',
-            arguments=['reflex_mc_controller', '-c', concatenate_ns(ns, 'controller_manager', True)],
+            arguments=['reflex_multimode_controller', '-c', concatenate_ns(ns, 'controller_manager', True)],
             output='screen',
         ),
         Node(
@@ -167,9 +167,9 @@ def generate_launch_description():
             executable='panda_poly_c2_joint_motion_generator_node',
             arguments=['joint_via_motion', 
                         '/panda/get_robot_states',
-                        'reflex_mc_controller', 
-                        'panda_joint_impedance_controller', 
-                        '/panda/panda_joint_impedance_controller/desired_pose'],
+                        'reflex_multimode_controller', 
+                        'franka_joint_impedance_controller', 
+                        '/panda/franka_joint_impedance_controller/desired_pose'],
             output='screen',
         ),
         Node(
@@ -177,9 +177,9 @@ def generate_launch_description():
             executable='panda_dq_c1_cartesian_motion_generator_node',
             arguments=['cartesian_via_motion',
                         '/panda/get_robot_states',
-                        'reflex_mc_controller', 
-                        'panda_cartesian_impedance_controller', 
-                        '/panda/panda_cartesian_impedance_controller/desired_pose'],
+                        'reflex_multimode_controller', 
+                        'franka_cartesian_impedance_controller', 
+                        '/panda/franka_cartesian_impedance_controller/desired_pose'],
             output='screen',
         ),
     ])

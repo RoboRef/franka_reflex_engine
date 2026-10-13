@@ -2,16 +2,16 @@
 """
 Node that reads the current joint position from /joint_states at startup,
 then publishes a circular motion in joint space (oscillating joints 1 and 3)
-to the panda_joint_impedance_controller.
+to the franka_joint_impedance_controller.
 
 Usage (from the ROS2 container):
     python3 desired_joint_pose_publisher.py
 
 The node publishes a JointGoal message to:
-    /panda/panda_joint_impedance_controller/desired_pose
+    /panda/franka_joint_impedance_controller/desired_pose
 
 You can also adjust the stiffness scale at runtime via:
-    ros2 service call /panda/panda_joint_impedance_controller/parameters \
+    ros2 service call /panda/franka_joint_impedance_controller/parameters \
         multi_mode_control_msgs/srv/SetJointImpedance "{stiffness_scale: 0.5}"
 """
 
@@ -29,7 +29,7 @@ class DesiredJointPosePublisher(Node):
         # Publisher on the joint impedance controller desired_pose topic
         self.publisher_ = self.create_publisher(
             JointGoal,
-            '/panda/panda_joint_impedance_controller/desired_pose',
+            '/panda/franka_joint_impedance_controller/desired_pose',
             10
         )
 

@@ -1,8 +1,10 @@
 # Controller config for the gravity-comp + reflex test (single real Panda arm).
 #
 # Default behaviour  : low-stiffness joint impedance → feels like gravity compensation.
-# Collision reflex   : switches to panda_zero_g_controller (fully backdrivable).
-# Limit reflex       : switches to panda_stop_controller (gentle braking).
+# Collision reflex   : switches to reflex_for_collision (e.g. franka_zero_g_controller,
+#                      franka_admittance_controller, franka_joint_retract_controller,
+#                      franka_cartesian_retract_controller, or franka_stop_controller).
+# Limit reflex       : switches to franka_stop_controller (gentle braking).
 # Recovery           : push the EE (> gesture_threshold N) OR call:
 #                        ros2 service call /panda/recover std_srvs/srv/Empty
 
@@ -20,7 +22,7 @@ controller_manager:
       type: franka_robot_state_broadcaster/FrankaRobotModelBroadcaster
 
     reflex_multimode_controller:
-      type: reflex_mc_impl/ReflexMCController
+      type: reflex_mc_impl/ReflexMultimodeController
 
 
 # ── Franka state/model broadcasters ──────────────────────────────────────────
@@ -45,22 +47,38 @@ reflex_multimode_controller:
 
     # Sub-controllers available to the engine (must all be listed here)
     controllers:
-      - panda_joint_impedance_controller   # nominal: gravity-comp feel
-      - panda_zero_g_controller            # collision reflex: fully backdrivable
-      - panda_stop_controller              # limit reflex: gentle brake
-      - panda_move_to_start_controller     # recovery: return to home pose
+      # Nominal task controllers (task_controllers package)
+      - franka_joint_impedance_controller
+      - franka_cartesian_impedance_controller
+      - franka_joint_velocity_controller
+      - franka_move_to_start_controller
+      - wiping_controller
+      # Task-abandoning reflex behaviours (reflex_controllers package)
+      - franka_stop_controller              # 1. Stop reflex
+      - franka_zero_g_controller            # 2. Zero-G reflex
+      - franka_super_zero_g_controller      # 3. Super Zero-G reflex
+      - franka_admittance_controller        # 4. Admittance reflex: q_dot_d = alpha * tau_ext
+      - franka_joint_retract_controller     # 5. Joint Retraction reflex
+      - franka_cartesian_retract_controller # 6. Cartesian Retraction reflex
 
     resources:
-      panda_joint_impedance_controller:  [panda]
-      panda_zero_g_controller:           [panda]
-      panda_stop_controller:             [panda]
-      panda_move_to_start_controller:    [panda]
+      franka_joint_impedance_controller:   [panda]
+      franka_cartesian_impedance_controller: [panda]
+      franka_joint_velocity_controller:    [panda]
+      franka_move_to_start_controller:     [panda]
+      wiping_controller:                  [panda]
+      franka_stop_controller:              [panda]
+      franka_zero_g_controller:            [panda]
+      franka_super_zero_g_controller:      [panda]
+      franka_admittance_controller:        [panda]
+      franka_joint_retract_controller:     [panda]
+      franka_cartesian_retract_controller: [panda]
 
     # Start with gravity-comp (joint impedance with low stiffness)
     start_controllers:
-      names: [panda_joint_impedance_controller]
+      names: [franka_joint_impedance_controller]
       resources:
-        panda_joint_impedance_controller: [panda]
+        franka_joint_impedance_controller: [panda]
 
     # ── Per-arm safety parameters ─────────────────────────────────────────
     panda:
@@ -93,16 +111,21 @@ reflex_multimode_controller:
         W_max_EE: 10.0  # Nm — external torque at EE triggering reflex
 
       # ── Reflex routing ────────────────────────────────────────────────
+      # Switch reflex_for_collision to any of the 5 task-abandoning reflexes:
+      #   franka_zero_g_controller            (Zero-G)
+      #   franka_super_zero_g_controller      (Super Zero-G)
+      #   franka_admittance_controller        (Admittance: q_dot_d = alpha * tau_ext)
+      #   franka_joint_retract_controller     (Joint Retraction)
+      #   franka_cartesian_retract_controller (Cartesian Retraction)
+      #   franka_stop_controller              (Stop)
       reflexes:
-        reflex_for_collision:      panda_zero_g_controller
-        reflex_for_joint_pos_limit: panda_stop_controller
-        reflex_for_joint_vel_limit: panda_stop_controller
+        reflex_for_collision:       franka_zero_g_controller
+        reflex_for_joint_pos_limit: franka_stop_controller
+        reflex_for_joint_vel_limit: franka_stop_controller
 
-      nominal_controller: panda_joint_impedance_controller
+      nominal_controller: franka_joint_impedance_controller
 
       # ── Recovery ─────────────────────────────────────────────────────
-      # Home pose: arm roughly upright / candle pose, safe for all workspaces.
-      # Adjust to match your physical setup.
       recovery_goal_position: [0.0, -0.785398, 0.0, -2.35619, 0.0, 1.57079, 0.785398]
 
       enable_gesture_recovery: true
@@ -112,12 +135,10 @@ reflex_multimode_controller:
       verbose_logging: true
 
     # ── Sub-controller gains ─────────────────────────────────────────────────
-    # Low stiffness → robot feels compliant / close to gravity compensation.
-    # Increase k_gains if you want stiffer position holding.
-    panda_joint_impedance_controller:
-      k_gains: [5.0, 5.0, 5.0, 5.0, 3.0, 2.0, 1.0]   # Nm/rad  (soft!)
-      d_gains: [1.0, 1.0, 1.0, 0.5, 0.5, 0.3, 0.2]   # Nms/rad
+    franka_joint_impedance_controller:
+      k_gains: [300.0, 300.0, 300.0, 300.0, 200.0, 200.0, 200.0]   
+      d_gains: [20.0, 20.0, 20.0, 20.0, 10.0, 10.0, 10.0]
 
-    panda_move_to_start_controller:
+    franka_move_to_start_controller:
       k_gains: [600.0, 600.0, 600.0, 600.0, 250.0, 150.0, 50.0]
       d_gains: [ 30.0,  30.0,  30.0,  30.0,  10.0,  10.0,  5.0]

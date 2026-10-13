@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project(reflex_mc_impl)
-# Set a default build type if none was specified
+
 set(default_build_type "Release")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -10,9 +10,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-
-
-# find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(controller_interface REQUIRED)
@@ -25,43 +22,43 @@ find_package(franka_msgs REQUIRED)
 find_package(franka_semantic_components REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-# For multimode testing
 find_package(reflex_controllers REQUIRED)
+find_package(task_controllers REQUIRED)
 find_package(reflex_engine REQUIRED)
 find_package(multi_mode_control_msgs REQUIRED)
 
 add_library(
-        ${PROJECT_NAME}
-        SHARED
-        src/reflex_mc_controller.cpp
-        src/standard_joint_impedance_controller.cpp
-        src/standard_move_to_start_controller.cpp
-        src/standard_wiping_controller.cpp
+  ${PROJECT_NAME}
+  SHARED
+  src/reflex_multimode_controller.cpp
 )
 
 target_include_directories(
-        ${PROJECT_NAME}
-        PUBLIC
-        include
-        ${EIGEN3_INCLUDE_DIRS}
+  ${PROJECT_NAME}
+  PUBLIC
+  include
+  ${EIGEN3_INCLUDE_DIRS}
 )
+
+
 ament_target_dependencies(
-        ${PROJECT_NAME}
-        controller_interface
-        hardware_interface
-        franka_semantic_components
-        pluginlib
-        rclcpp
-        rclcpp_lifecycle
-        reflex_controllers
-        reflex_engine
-        multi_mode_control_msgs
-        geometry_msgs
-        sensor_msgs
+  ${PROJECT_NAME}
+  controller_interface
+  hardware_interface
+  franka_semantic_components
+  pluginlib
+  rclcpp
+  rclcpp_lifecycle
+  reflex_controllers
+  task_controllers
+  reflex_engine
+  multi_mode_control_msgs
+  geometry_msgs
+  sensor_msgs
 )
 
 pluginlib_export_plugin_description_file(
-        controller_interface reflex_mc_controllers.xml)
+  controller_interface reflex_mc_controllers.xml)
 
 install(
   TARGETS
@@ -75,35 +72,32 @@ install(
   DIRECTORY include/
   DESTINATION include
 )
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # comment the line when a copyright and license is added to all source files
   set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # comment the line when this package is in a git repo and when
-  # a copyright and license is added to all source files
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
 
 ament_export_include_directories(
-        include
+  include
 )
 ament_export_libraries(
-        ${PROJECT_NAME}
+  ${PROJECT_NAME}
 )
 ament_export_dependencies(
-        controller_interface
-        pluginlib
-        rclcpp
-        rclcpp_lifecycle
-        hardware_interface
-        reflex_controllers
-        reflex_engine
-        multi_mode_control_msgs
-        geometry_msgs
-        sensor_msgs
+  controller_interface
+  pluginlib
+  rclcpp
+  rclcpp_lifecycle
+  hardware_interface
+  reflex_controllers
+  task_controllers
+  reflex_engine
+  multi_mode_control_msgs
+  geometry_msgs
+  sensor_msgs
 )
 
 ament_package()

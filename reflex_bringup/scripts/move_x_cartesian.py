@@ -26,20 +26,20 @@ class MoveTask(Node):
         # 1. Controller Switch Client
         self.set_ctrl_client = self.create_client(
             SetControllers,
-            '/reflex_mc_controller/set_controllers'
+            '/reflex_multimode_controller/set_controllers'
         )
 
         # 2. Joint Goal Publisher
         self.joint_pub = self.create_publisher(
             JointGoal,
-            '/panda/panda_joint_impedance_controller/desired_pose',
+            '/panda/franka_joint_impedance_controller/desired_pose',
             10
         )
 
         # 3. Cartesian Goal Publisher
         self.cart_pub = self.create_publisher(
             CartesianImpedanceGoal,
-            '/panda/panda_cartesian_impedance_controller/desired_pose',
+            '/panda/franka_cartesian_impedance_controller/desired_pose',
             10
         )
 
@@ -111,7 +111,7 @@ class MoveTask(Node):
         # Phase 0: Start sequence -> Switch to Joint Impedance Controller
         if self.state == "WAIT_FOR_JOINTS":
             self.state = "SWITCHING_TO_JOINT_CTRL"
-            self.switch_controller("panda_joint_impedance_controller", "MOVE_TO_P1")
+            self.switch_controller("franka_joint_impedance_controller", "MOVE_TO_P1")
             return
 
         elif self.state == "SWITCHING_TO_JOINT_CTRL":
@@ -181,7 +181,7 @@ class MoveTask(Node):
             self.phase_time += self.timer_period
             if self.phase_time >= 0.5:
                 self.state = "SWITCHING_TO_CART_CTRL"
-                self.switch_controller("panda_cartesian_impedance_controller", "CAPTURE_CART_START")
+                self.switch_controller("franka_cartesian_impedance_controller", "CAPTURE_CART_START")
 
         elif self.state == "SWITCHING_TO_CART_CTRL":
             # Waiting for service async callback

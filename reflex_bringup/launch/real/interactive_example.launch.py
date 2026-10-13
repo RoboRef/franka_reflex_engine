@@ -65,7 +65,7 @@ def generate_launch_description():
             default_value='panda',
             description='Arm ID used in all topic/frame names.'),
         DeclareLaunchArgument(load_gripper_param,
-            default_value='true',
+            default_value='false',
             description='Attach Franka Hand gripper.'),
         DeclareLaunchArgument(use_fake_hw_param,
             default_value='false',

@@ -3,8 +3,8 @@
 <package format="3">
   <name>reflex_mc_impl</name>
   <version>0.0.0</version>
-  <description>ros2_control plugin (ReflexMCController) that embeds reflex_engine's
-    SimpleReflexEngine alongside a pool of reflex_controllers sub-controllers,
+  <description>ros2_control plugin (ReflexMultimodeController) that embeds reflex_engine's
+    SimpleReflexEngine alongside a pool of reflex_controllers and task_controllers sub-controllers,
     providing transparent runtime controller switching in response to safety events.</description>
   <maintainer email="jon.skerlj@gmail.com">Jon Skerlj</maintainer>
   <author email="jon.skerlj@gmail.com">Jon Skerlj</author>
@@ -22,6 +22,7 @@
   <depend>franka_msgs</depend>
   <depend>franka_semantic_components</depend>
   <depend>reflex_controllers</depend>
+  <depend>task_controllers</depend>
   <depend>reflex_engine</depend>
   <depend>multi_mode_control_msgs</depend>
 

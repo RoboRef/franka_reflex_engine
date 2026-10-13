@@ -160,11 +160,17 @@ void SimpleReflexEngine::computeTauImpl(const std::vector<std::array<double, 7>*
       }
 
       // Check if the formal controller manager has successfully swapped out the nominal controller
-      bool is_stop = control->getName().find("stop") != std::string::npos;
-      bool is_retract = control->getName().find("retract") != std::string::npos;
-      bool is_zero_g = control->getName().find("zero_g") != std::string::npos;
+      const std::string ctrl_name = control->getName();
+      bool is_stop = ctrl_name.find("stop") != std::string::npos || (ctrl_name == reflex_for_joint_pos_limit_);
+      bool is_configured_reflex = (ctrl_name == reflex_for_collision_) ||
+                                  (ctrl_name == reflex_for_joint_pos_limit_) ||
+                                  (ctrl_name == reflex_for_joint_vel_limit_);
+      bool is_known_safety_type = (ctrl_name.find("stop") != std::string::npos) ||
+                                  (ctrl_name.find("retract") != std::string::npos) ||
+                                  (ctrl_name.find("zero_g") != std::string::npos) ||
+                                  (ctrl_name.find("admittance") != std::string::npos);
 
-      if (is_stop || is_retract || is_zero_g) {
+      if (is_configured_reflex || is_known_safety_type) {
 
         bool allowed_to_run = true;
         // Position limits or hard velocity limits block non-stop controllers
@@ -210,7 +216,6 @@ void SimpleReflexEngine::computeTauImpl(const std::vector<std::array<double, 7>*
       break;
     }
     case SimpleState::RECOVERY: {
-      loadParameters(resource_); // Refresh recovery_goal_position and nominal_controller parameters dynamically
       // 1. Joint Position limits check during RECOVERY
       bool joint_pos_limits_violated = checkJointLimits(joint_limit_margin_recovery_);
       if (joint_pos_limits_violated) {
@@ -365,7 +370,7 @@ void SimpleReflexEngine::loadParameters(const std::string& resource) {
   std::vector<double> q_start_vec = declare_or_get(node_, prefix + "recovery_goal_position", default_q_start);
   if (q_start_vec.size() == 7) std::copy(q_start_vec.begin(), q_start_vec.end(), q_start_.begin());
 
-  RCLCPP_INFO(node_->get_logger(),
+  RCLCPP_DEBUG(node_->get_logger(),
     "SimpleReflexEngine: Loaded parameters for resource '%s'. (Collision reflex: %s, PosLimit reflex: %s, VelLimit reflex: %s, Verbose: %s, GestureRecovery: %s)",
     resource.c_str(), reflex_for_collision_.c_str(), reflex_for_joint_pos_limit_.c_str(), reflex_for_joint_vel_limit_.c_str(),
     verbose_logging_ ? "true" : "false", enable_gesture_recovery_ ? "true" : "false");
@@ -529,6 +534,12 @@ void SimpleReflexEngine::triggerReflex(const std::string& safety_controller) {
   publishState("REFLEX");
   reflex_time_ = node_->now();
   
+  loadParameters(resource_);
+  RCLCPP_INFO(node_->get_logger(),
+    "SimpleReflexEngine: Loaded parameters for resource '%s'. (Collision reflex: %s, PosLimit reflex: %s, VelLimit reflex: %s, Verbose: %s, GestureRecovery: %s)",
+    resource_.c_str(), reflex_for_collision_.c_str(), reflex_for_joint_pos_limit_.c_str(), reflex_for_joint_vel_limit_.c_str(),
+    verbose_logging_ ? "true" : "false", enable_gesture_recovery_ ? "true" : "false");
+
   RCLCPP_WARN(node_->get_logger(),
     "SimpleReflexEngine: Reflex triggered. Switching to safety controller: %s",
     safety_controller.c_str());
@@ -549,11 +560,12 @@ void SimpleReflexEngine::triggerReflex(const std::string& safety_controller) {
 void SimpleReflexEngine::triggerRecovery() {
   state_ = SimpleState::RECOVERY;
   publishState("RECOVERY");
+  loadParameters(resource_);
   RCLCPP_INFO(node_->get_logger(), "SimpleReflexEngine: Initiating recovery motion to start pose...");
   
   auto request = std::make_shared<multi_mode_control_msgs::srv::SetControllers::Request>();
   multi_mode_control_msgs::msg::Controller new_ctrl;
-  new_ctrl.name = "panda_move_to_start_controller";
+  new_ctrl.name = "franka_move_to_start_controller";
   new_ctrl.resources.push_back(resource_);
   request->controllers.push_back(new_ctrl);
   

@@ -11,7 +11,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
   set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
       STRING "Choose the type of build." FORCE)
-  # Set the possible values of build type for cmake-gui
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
     "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
@@ -38,7 +37,6 @@ sensor_msgs
 Franka
 )
 
-# Find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(Eigen3 REQUIRED)
 
@@ -46,110 +44,64 @@ foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
   find_package(${Dependency} REQUIRED)
 endforeach()
 
-
-add_library(openGJK STATIC
-    src/openGJK.c
-)
-target_include_directories(
-  openGJK
-  PUBLIC
-  include
-)
-
-install(TARGETS
-  openGJK
-  DESTINATION lib
-)
-
 add_library(reflex_controllers SHARED 
-  src/robot_data.cpp
-  src/controller_factory.cpp
-  src/redundancy_resolution.cpp
-  src/comless_panda_cartesian_impedance_controller.cpp
-  src/comless_coupled_dual_cartesian_impedance_controller.cpp
-  src/comless_panda_joint_impedance_controller.cpp
-  src/panda_stop_controller.cpp
-  src/motion_generator.cpp
-  src/panda_move_to_start_controller.cpp
-  src/panda_cartesian_impedance_controller.cpp
-  src/panda_joint_impedance_controller.cpp
-  src/panda_collision_recorder_controller.cpp
-  src/panda_joint_velocity_controller.cpp
-  src/panda_contact_evasion_controller.cpp
-  src/panda_super_zero_g_controller.cpp
-  src/panda_zero_g_controller.cpp
-  src/comless_dual_cartesian_impedance_controller.cpp
-  src/comless_dual_joint_impedance_controller.cpp
-  src/dual_cartesian_impedance_controller.cpp
-  src/twin_cartesian_impedance_controller.cpp
-  src/des_coupled_dual_cartesian_impedance_controller.cpp
-  src/twin_joint_impedance_controller.cpp
-  src/panda_joint_impedance_example_controller.cpp
-  src/panda_cartesian_impedance_example_controller.cpp
-  src/comless_wiping_controller.cpp
-  src/wiping_controller.cpp
-  src/comless_move_down_controller.cpp
-  src/move_down_controller.cpp
-  src/comless_move_joint1_controller.cpp
-  )
+  # Framework core & utilities
+  src/utils/robot_data.cpp
+  src/utils/controller_factory.cpp
+  src/utils/motion_generator.cpp
+
+  # Reflex behaviours (Stop, Zero-G, Super Zero-G, Admittance, Joint Retract, Cartesian Retract)
+  src/reflexes/franka_stop_controller.cpp
+  src/reflexes/franka_zero_g_controller.cpp
+  src/reflexes/franka_super_zero_g_controller.cpp
+  src/reflexes/franka_admittance_controller.cpp
+  src/reflexes/franka_joint_retract_controller.cpp
+  src/reflexes/franka_cartesian_retract_controller.cpp
+)
 
 target_include_directories(
   reflex_controllers
-    PRIVATE
-    include
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
     ${EIGEN3_INCLUDE_DIRS}
 )
 
 ament_target_dependencies(reflex_controllers PUBLIC
                           ${THIS_PACKAGE_INCLUDE_DEPENDS})
-target_link_libraries(reflex_controllers PUBLIC 
-                      openGJK)
 
 install(
-        TARGETS reflex_controllers
-        DESTINATION lib
+  TARGETS reflex_controllers
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
 install(
-        DIRECTORY include/
-        DESTINATION include
-)
-
-add_library(synchronous_client SHARED src/synchronous_client.cpp)
-ament_target_dependencies(synchronous_client PUBLIC rclcpp ${THIS_PACKAGE_INCLUDE_DEPENDS})
-target_include_directories(
-  synchronous_client
-   PRIVATE
-   include
-   ${EIGEN3_INCLUDE_DIRS}
-)
-install(TARGETS
-  synchronous_client
-  DESTINATION lib
+  DIRECTORY include/
+  DESTINATION include
 )
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # comment the line when a copyright and license is added to all source files
   set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # comment the line when this package is in a git repo and when
-  # a copyright and license is added to all source files
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
 
 ament_export_include_directories(
-        include
+  include
 )
 ament_export_libraries(
-        reflex_controllers
-        synchronous_client
-        openGJK
+  reflex_controllers
+)
+ament_export_targets(
+  export_${PROJECT_NAME}
 )
 ament_export_dependencies(
-        franka_semantic_components
-        rclcpp
+  franka_semantic_components
+  rclcpp
+  multi_mode_control_msgs
 )
 ament_package()

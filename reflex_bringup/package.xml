@@ -20,6 +20,8 @@
   <exec_depend>rviz2</exec_depend>
   <exec_depend>xacro</exec_depend>
   <exec_depend>reflex_mc_impl</exec_depend>
+  <exec_depend>reflex_controllers</exec_depend>
+  <exec_depend>task_controllers</exec_depend>
   <exec_depend>panda_motion_generators</exec_depend>
   <exec_depend>franka_gripper</exec_depend>
   <exec_depend>franka_robot_state_broadcaster</exec_depend>

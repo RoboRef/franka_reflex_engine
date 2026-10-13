@@ -3,8 +3,7 @@
 <package format="3">
   <name>reflex_controllers</name>
   <version>0.0.0</version>
-  <description>Library of PandaControllerInterface implementations used by the reflex engine:
-    joint impedance, Cartesian impedance, zero-g, stop, move-to-start, and others.</description>
+  <description>PandaControllerInterface framework and safety-aware reflex behaviours (Stop, Zero-G, Super Zero-G, Admittance, Joint Retraction, Cartesian Retraction).</description>
   <maintainer email="jon.skerlj@gmail.com">Jon Skerlj</maintainer>
   <author email="jon.skerlj@gmail.com">Jon Skerlj</author>
   <license>Apache-2.0</license>

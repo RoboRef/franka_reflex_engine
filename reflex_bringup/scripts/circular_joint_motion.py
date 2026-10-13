@@ -16,7 +16,7 @@ class CircularJointMotion(Node):
         # Publisher for the joint impedance controller
         self.publisher_ = self.create_publisher(
             JointGoal, 
-            '/panda/panda_joint_impedance_controller/desired_pose', 
+            '/panda/franka_joint_impedance_controller/desired_pose', 
             10
         )
         

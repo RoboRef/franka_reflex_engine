@@ -69,10 +69,10 @@ private:
   // Parameter loading
   void loadParameters(const std::string& resource);
 
-  std::string nominal_controller_ = "panda_joint_impedance_controller";
-  std::string reflex_for_collision_ = "panda_zero_g_controller";
-  std::string reflex_for_joint_pos_limit_ = "panda_stop_controller";
-  std::string reflex_for_joint_vel_limit_ = "panda_stop_controller";
+  std::string nominal_controller_ = "franka_joint_impedance_controller";
+  std::string reflex_for_collision_ = "franka_zero_g_controller";
+  std::string reflex_for_joint_pos_limit_ = "franka_stop_controller";
+  std::string reflex_for_joint_vel_limit_ = "franka_stop_controller";
 
   
   // Joint limits for Franka Panda
@@ -84,7 +84,7 @@ private:
   // Joint velocity limits for Franka Panda (rad/s)
   std::array<double, 7> qd_max_{2.1750, 2.1750, 2.1750, 2.1750, 2.6100, 2.6100, 2.6100};
   double joint_velocity_soft_buffer_ = 0.2;  // rad/s (soft buffer: apply active virtual damping)
-  double joint_velocity_hard_buffer_ = 0.05; // rad/s (hard buffer: trigger panda_stop_controller)
+  double joint_velocity_hard_buffer_ = 0.05; // rad/s (hard buffer: trigger franka_stop_controller)
   std::array<double, 7> joint_velocity_damping_gains_{500.0, 500.0, 500.0, 500.0, 500.0, 500.0, 500.0}; // Nms/rad
 
   // Engine behavior settings
