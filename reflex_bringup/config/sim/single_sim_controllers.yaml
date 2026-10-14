@@ -98,7 +98,7 @@ reflex_multimode_controller:
       gesture_threshold: 20.0
       recovery_cooldown_time: 3.0
       nominal_controller: "franka_joint_impedance_controller"
-      recovery_goal_position: [0.0, -0.785398, 0.0, -2.35619, 0.0, 1.57079, 0.785398]
+      recovery_goal_position: [0.0, 0.0, 0.0, -1.5708, 0.0, 1.8675, 0.0]
       reflexes:
         reflex_for_collision: "franka_zero_g_controller"
         reflex_for_joint_pos_limit: "franka_stop_controller"

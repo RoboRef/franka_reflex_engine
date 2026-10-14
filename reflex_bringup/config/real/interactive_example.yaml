@@ -126,7 +126,7 @@ reflex_multimode_controller:
       nominal_controller: franka_joint_impedance_controller
 
       # ── Recovery ─────────────────────────────────────────────────────
-      recovery_goal_position: [0.0, -0.785398, 0.0, -2.35619, 0.0, 1.57079, 0.785398]
+      recovery_goal_position: [0.0, -0.785, 0.0, -2.35619, 0.0, 1.571, 0.785]
 
       enable_gesture_recovery: true
       gesture_threshold:       15.0   # N — EE force needed to trigger gesture recovery
@@ -136,9 +136,9 @@ reflex_multimode_controller:
 
     # ── Sub-controller gains ─────────────────────────────────────────────────
     franka_joint_impedance_controller:
-      k_gains: [300.0, 300.0, 300.0, 300.0, 200.0, 200.0, 200.0]   
-      d_gains: [20.0, 20.0, 20.0, 20.0, 10.0, 10.0, 10.0]
-
+      k_gains: [600.0, 600.0, 600.0, 600.0, 250.0, 150.0, 50.0]
+      d_gains: [ 30.0,  30.0,  30.0,  30.0,  10.0,  10.0,  5.0]
+      
     franka_move_to_start_controller:
       k_gains: [600.0, 600.0, 600.0, 600.0, 250.0, 150.0, 50.0]
       d_gains: [ 30.0,  30.0,  30.0,  30.0,  10.0,  10.0,  5.0]

@@ -1,0 +1,139 @@
+# Controller config for the figure-8 + reflex example (single real Panda arm).
+#
+# Task               : figure_eight_publisher moves the arm to the start pose
+#                      (franka_joint_impedance_controller), then tracks a figure-8
+#                      in the base XY plane (franka_cartesian_impedance_controller).
+# Collision reflex   : franka_zero_g_controller (push / bump the arm during the task).
+# Limit reflexes     : franka_stop_controller (joint position + joint velocity limits).
+# Recovery           : push the EE (> gesture_threshold N) OR call:
+#                        ros2 service call /panda/recover std_srvs/srv/Empty
+#                      → move_to_start → figure_eight_publisher restarts the task.
+
+controller_manager:
+  ros__parameters:
+    update_rate: 1000  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    franka_robot_state_broadcaster:
+      type: franka_robot_state_broadcaster/FrankaRobotStateBroadcaster
+
+    franka_robot_model_broadcaster:
+      type: franka_robot_state_broadcaster/FrankaRobotModelBroadcaster
+
+    reflex_multimode_controller:
+      type: reflex_mc_impl/ReflexMultimodeController
+
+
+# ── Franka state/model broadcasters ──────────────────────────────────────────
+franka_robot_state_broadcaster:
+  ros__parameters:
+    arm_id: panda
+
+franka_robot_model_broadcaster:
+  ros__parameters:
+    arm_id: panda
+
+
+# ── Reflex multimode controller ───────────────────────────────────────────────
+reflex_multimode_controller:
+  ros__parameters:
+    reflex: true   # enables SimpleReflexEngine safety state machine
+
+    # ── Robot configuration ───────────────────────────────────────────────
+    arm_count: 1
+    arm_1:
+      arm_id: panda
+
+    # Sub-controllers available to the engine (must all be listed here)
+    controllers:
+      # Nominal task controllers (task_controllers package)
+      - franka_cartesian_impedance_controller
+      - franka_move_to_start_controller
+
+      # Task-abandoning reflex behaviours (reflex_controllers package)
+      - franka_stop_controller              # 1. Stop reflex
+      - franka_zero_g_controller            # 2. Zero-G reflex
+      - franka_super_zero_g_controller      # 3. Super Zero-G reflex
+      - franka_admittance_controller        # 4. Admittance reflex: q_dot_d = alpha * tau_ext
+      - franka_joint_retract_controller     # 5. Joint Retraction reflex
+      - franka_cartesian_retract_controller # 6. Cartesian Retraction reflex
+
+    resources:
+      franka_cartesian_impedance_controller: [panda]
+      franka_move_to_start_controller:     [panda]
+
+      franka_stop_controller:              [panda]
+      franka_zero_g_controller:            [panda]
+      franka_super_zero_g_controller:      [panda]
+      franka_admittance_controller:        [panda]
+      franka_joint_retract_controller:     [panda]
+      franka_cartesian_retract_controller: [panda]
+
+    # Start in move_to_start_controller; figure_eight_publisher waits for it to reach start pose
+    # and then switches to franka_cartesian_impedance_controller.
+    start_controllers:
+      names: [franka_move_to_start_controller]
+      resources:
+        franka_move_to_start_controller: [panda]
+
+    # ── Per-arm safety parameters ─────────────────────────────────────────
+    panda:
+      base_frame: panda_link0
+      ee_frame:   panda_link8
+
+      contact_detection:
+        detection_frame: panda_link8
+
+      # Joint position limits (rad) — Franka Panda hardware limits
+      joint_position_limits:
+        q_min: [-2.8973, -1.7628, -2.8973, -3.0718, -2.8973, -0.0175, -2.8973]
+        q_max: [ 2.8973,  1.7628,  2.8973, -0.0698,  2.8973,  3.7525,  2.8973]
+
+      joint_position_buffers:
+        joint_limit_buffer:    0.20   # rad — trigger reflex this far from the limit
+        recovery_limit_buffer: 0.10   # rad — relaxed margin during recovery
+
+      # Joint velocity limits (rad/s) — Franka Panda hardware limits
+      joint_velocity_limits:
+        qd_max:                    [2.1750, 2.1750, 2.1750, 2.1750, 2.6100, 2.6100, 2.6100]
+        joint_velocity_soft_buffer: 0.20   # rad/s — apply virtual damping above (qd_max - soft_buffer)
+        joint_velocity_hard_buffer: 0.10   # rad/s — trigger stop reflex above (qd_max - hard_buffer)
+        joint_velocity_damping_gains: [500.0, 500.0, 500.0, 500.0, 500.0, 500.0, 500.0]
+
+      # Collision thresholds — the figure-8 is slow (~0.1 m/s), so these stay low
+      # enough to react to a human bump without false positives from the motion.
+      collision_thresholds:
+        tau_max:  [12.0, 12.0, 9.0, 9.0, 6.0, 6.0, 4.0]  # Nm per joint
+        F_max_EE: 15.0  # N  — external force at EE triggering reflex
+        W_max_EE: 10.0  # Nm — external torque at EE triggering reflex
+
+      # ── Reflex routing ────────────────────────────────────────────────
+      #   collision        → Zero-G (arm becomes compliant, task abandoned)
+      #   joint pos limit  → Stop
+      #   joint vel limit  → Stop
+      reflexes:
+        reflex_for_collision:       franka_zero_g_controller
+        reflex_for_joint_pos_limit: franka_stop_controller
+        reflex_for_joint_vel_limit: franka_stop_controller
+
+      nominal_controller: franka_cartesian_impedance_controller
+
+      # ── Recovery ─────────────────────────────────────────────────────
+      recovery_goal_position: [0.0, -0.785, 0.0, -2.35619, 0.0, 1.571, 0.785]
+
+      enable_gesture_recovery: true
+      gesture_threshold:       15.0   # N — EE force needed to trigger gesture recovery
+      recovery_cooldown_time:   3.0   # s — minimum wait after reflex before accepting gesture
+
+      verbose_logging: true
+
+    # ── Sub-controller gains ─────────────────────────────────────────────────
+    franka_cartesian_impedance_controller:
+      k_gains: [600.0, 600.0, 600.0, 200.0, 200.0, 200.0]
+      d_gains: [ 30.0,  30.0,  30.0,  10.0,  10.0,  10.0]
+
+    franka_move_to_start_controller:
+      k_gains: [600.0, 600.0, 600.0, 600.0, 250.0, 150.0, 50.0]
+      d_gains: [ 30.0,  30.0,  30.0,  30.0,  10.0,  10.0,  5.0]

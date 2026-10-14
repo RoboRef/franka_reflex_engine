@@ -25,6 +25,12 @@
   <exec_depend>panda_motion_generators</exec_depend>
   <exec_depend>franka_gripper</exec_depend>
   <exec_depend>franka_robot_state_broadcaster</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>rcl_interfaces</exec_depend>
+  <exec_depend>franka_msgs</exec_depend>
+  <exec_depend>multi_mode_control_msgs</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

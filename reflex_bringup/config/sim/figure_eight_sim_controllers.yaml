@@ -1,0 +1,106 @@
+mujoco_server:
+  ros__parameters:
+    MujocoPlugins:
+      names:
+        - mujoco_ros2_control
+      mujoco_ros2_control:
+        type: mujoco_ros2_control::MujocoRos2ControlPlugin
+        hardware:
+          type: mujoco_ros_control/RobotHW
+          control_period: 0.001
+        params:
+          namespace: ""
+          robot_description_node: "robot_state_publisher"
+          robot_description: "robot_description"
+
+controller_manager:
+  ros__parameters:
+    update_rate: 1000
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+    franka_robot_state_broadcaster:
+      type: franka_robot_state_broadcaster/FrankaRobotStateBroadcaster
+    franka_robot_model_broadcaster:
+      type: franka_robot_state_broadcaster/FrankaRobotModelBroadcaster
+    reflex_multimode_controller:
+      type: reflex_mc_impl/ReflexMultimodeController
+
+franka_robot_state_broadcaster:
+  ros__parameters:
+    arm_id: panda
+    frequency: 60
+    
+franka_robot_model_broadcaster:
+  ros__parameters:
+    arm_id: panda
+    frequency: 60
+  
+reflex_multimode_controller:
+  ros__parameters:
+    reflex: true
+    arm_count: 1
+    arm_1:
+      arm_id: panda
+
+    controllers:
+      - franka_cartesian_impedance_controller
+      - franka_move_to_start_controller
+      - franka_stop_controller
+      - franka_zero_g_controller
+      - franka_super_zero_g_controller
+      - franka_joint_retract_controller
+      - franka_cartesian_retract_controller
+
+    resources:
+      franka_cartesian_impedance_controller: [panda]
+      franka_move_to_start_controller:       [panda]
+      franka_stop_controller:                [panda]
+      franka_zero_g_controller:              [panda]
+      franka_super_zero_g_controller:        [panda]
+      franka_joint_retract_controller:       [panda]
+      franka_cartesian_retract_controller:   [panda]
+
+    start_controllers:
+      names: [franka_move_to_start_controller]
+      resources:
+        franka_move_to_start_controller: [panda]
+
+    panda:
+      base_frame: "panda_link0"
+      ee_frame: "panda_link8"
+      contact_detection:
+        detection_frame: "panda_link8"
+      joint_position_limits:
+        q_min: [-2.8973, -1.7628, -2.8973, -3.0718, -2.8973, -0.0175, -2.8973]
+        q_max: [2.8973, 1.7628, 2.8973, -0.0698, 2.8973, 3.7525, 2.8973]
+      joint_position_buffers:
+        joint_limit_buffer: 0.15
+        recovery_limit_buffer: 0.10
+      joint_velocity_limits:
+        qd_max: [2.1750, 2.1750, 2.1750, 2.1750, 2.6100, 2.6100, 2.6100]
+        joint_velocity_soft_buffer: 0.30
+        joint_velocity_hard_buffer: 0.05
+        joint_velocity_damping_gains: [500.0, 500.0, 500.0, 500.0, 500.0, 500.0, 500.0]
+      collision_thresholds:
+        tau_max: [12.0, 12.0, 9.0, 9.0, 3.0, 3.0, 1.5]
+        F_max_EE: 10.0
+        W_max_EE: 9.0
+      verbose_logging: true
+      enable_gesture_recovery: false
+      gesture_threshold: 10.0
+      recovery_cooldown_time: 3.0
+      nominal_controller: "franka_cartesian_impedance_controller"
+      recovery_goal_position: [0.0, -0.785, 0.0, -2.35619, 0.0, 1.571, 0.785]
+      reflexes:
+        reflex_for_collision: "franka_zero_g_controller"
+        reflex_for_joint_pos_limit: "franka_stop_controller"
+        reflex_for_joint_vel_limit: "franka_stop_controller"
+
+    # ── Sub-controller gains ─────────────────────────────────────────────────
+    franka_cartesian_impedance_controller:
+      k_gains: [600.0, 600.0, 600.0, 200.0, 200.0, 200.0]
+      d_gains: [ 30.0,  30.0,  30.0,  10.0,  10.0,  10.0]
+
+    franka_move_to_start_controller:
+      k_gains: [600.0, 600.0, 600.0, 600.0, 250.0, 150.0, 50.0]
+      d_gains: [ 30.0,  30.0,  30.0,  30.0,  10.0,  10.0,  5.0]
