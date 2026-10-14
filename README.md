@@ -74,12 +74,24 @@ The `ros2_control` controller plugin (`ReflexMultimodeController`) loaded by `co
 ### 1. Install `multipanda_ros2`
 Follow the setup instructions at [github.com/tenfoldpaper/multipanda_ros2](https://github.com/tenfoldpaper/multipanda_ros2) via the one-click installer utilizing docker.
 
-### 2. Build with `--symlink-install`
-Using `--symlink-install` links YAML configuration files, launch scripts, and Python nodes directly to the install directory. This allows editing parameters, tuning thresholds, or swapping reflex behaviours without having to recompile each time:
+### 2. Clone into your Workspace
+Clone `franka_reflex_engine` into the `multipanda_ros2/` directory:
 
 ```bash
-colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
-source install/setup.bash
+cd <your_path>/multipanda_ros2 && git clone https://github.com/jonskerlj/franka_reflex_engine.git
+```
+
+### 3. Build with `--symlink-install`
+Build all packages belonging to the reflex engine inside the container. Using `--symlink-install` links YAML configuration files, launch scripts, and Python nodes directly to the install directory. This allows editing parameters, tuning thresholds, or swapping reflex behaviours without having to recompile each time:
+
+```bash
+colcon build --packages-select \
+  reflex_controllers \
+  task_controllers \
+  reflex_engine \
+  reflex_mc_impl \
+  reflex_bringup \
+  --symlink-install && source install/setup.bash
 ```
 
 ---
