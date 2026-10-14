@@ -1,6 +1,6 @@
 # franka_reflex_engine
 
-**Author:** Jon Skerlj — [jon.skerlj@gmail.com](mailto:jon.skerlj@gmail.com)
+[![ROS 2](https://img.shields.io/badge/ROS2-22314E?logo=ros&logoColor=white)](https://www.ros.org/) [![MuJoCo](https://img.shields.io/badge/Simulation-MuJoCo-2ECC71)](https://mujoco.org/) [![Humble](https://img.shields.io/badge/Humble-3498DB?logo=ros&logoColor=white)](https://docs.ros.org/en/humble/) [![Franka Panda](https://img.shields.io/badge/Robot-Franka%20Panda-E74C3C)](https://franka.de/) [![multipanda_ros2](https://img.shields.io/badge/multipanda__ros2-compatible-8E44AD)](https://github.com/tenfoldpaper/multipanda_ros2) 
 
 ROS 2 packages that add **safe robot reflex behaviours** to Franka Panda manipulators, built on top of the multimodal controller framework from [multipanda_ros2](https://github.com/tenfoldpaper/multipanda_ros2).
 
@@ -177,6 +177,7 @@ controller_manager
 - [x] ~~**Demo examples:**~~
   - [x] ~~Interactive and Figure 8 motion~~
 - [ ] **Documentation - How to add reflexes to your own controllers**
+- [ ] **FR3 and ROS 2 Jazzy support**
 - [ ] **Integration of task relaxing and task preserving reflexes:**
   - Motion / Force Adaptation
   - Impedance Reaction
