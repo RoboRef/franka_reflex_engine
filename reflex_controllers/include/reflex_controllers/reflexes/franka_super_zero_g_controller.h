@@ -12,7 +12,7 @@ struct FrankaSuperZeroGControllerPose {
 };
 
 struct FrankaSuperZeroGControllerParams {
-  Eigen::Matrix<double, 7, 7> K_r;
+  Eigen::Matrix<double, 7, 7> beta;
 };
 
 class FrankaSuperZeroGController :

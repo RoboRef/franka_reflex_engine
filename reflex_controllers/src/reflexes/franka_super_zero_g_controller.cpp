@@ -18,7 +18,7 @@ void Controller::computeTauImpl(
     const Pose& /*desired*/, const Params& p) {
   Pose current = getCurrentPose();
   Vector7d tau_ext(robot_data_[0]->state().tau_ext_hat_filtered.data());
-  Vector7d tau_ctrl = -p.K_r*tau_ext;
+  Vector7d tau_ctrl = -p.beta * tau_ext;
   static const std::array<double, 7> pd_width =
       {{0.12, 0.09, 0.09, 0.09, 0.0349, 0.0349, 0.0349}};
   static const std::array<double, 7> d_width =
@@ -66,7 +66,7 @@ void Controller::computeTauImpl(
 
 Params Controller::defaultParameters() {
   Params p;
-  p.K_r = 0.5*Matrix7d::Identity();
+  p.beta = 0.5 * Matrix7d::Identity();
   return p;
 }
 
