@@ -32,16 +32,16 @@ Provides configurations and launch files for the available demonstrations:
 - **`figure_eight_example`**: Autonomous trajectory tracking (lemniscate on the base XY plane) with collision/limit reflex reaction and automated recovery.
 
 ### 2. `reflex_controllers`
-Implements the core `PandaControllerInterface` along with the **task-abandoning reflex behaviours** (based on [Vorndamme et al., 2025](https://ieeexplore.ieee.org/document/10804590)):
+Implements the core `PandaControllerInterface` along with the **task-abandoning reflex behaviours**:
 
 | Reflex | Controller | Behaviour / Control Law |
 |---|---|---|
-| **Stop** | `franka_stop_controller` | Freezes at current position with high stiffness and smooth velocity ramp-down |
-| **Zero-G** | `franka_zero_g_controller` | Weightless and backdrivable with protective soft joint-limit walls |
-| **Super Zero-G** | `franka_super_zero_g_controller` | Active assistance ($\tau = -\beta \tau_{ext},\text{with }\beta = 0.5$) to feel lighter than zero-G |
-| **Admittance** | `franka_admittance_controller` | Compliant yielding: $\dot{q}^*_d(t) = \alpha \hat{\tau}_{ext}(t)$ with $\alpha = 0.05$ |
-| **Joint Retraction** | `franka_joint_retract_controller` | Smooth quintic retraction away from impact torque: $q_{goal} = q_0 - \Delta \frac{\hat{\tau}_c}{\|\hat{\tau}_c\|}$ |
-| **Cartesian Retraction** | `franka_cartesian_retract_controller` | Smooth Cartesian retraction away from contact force: $p_{goal} = p_0 - d \frac{f_c}{\|f_c\|}$ |
+| **Stop** | `franka_stop_controller` | Freezes at current position with high stiffness and smooth velocity ramp-down: $$q_d^*(t) = q(t_{cd})$$ |
+| **Zero-G** | `franka_zero_g_controller` | Weightless and backdrivable with protective soft joint-limit walls: $$\tau =\tau_g(t)$$ |
+| **Super Zero-G** | `franka_super_zero_g_controller` | Active assistance to feel lighter than zero-G: $$\tau =\tau_g(t) -\beta \tau_{ext},\text{with }\beta = 0.5$$ |
+| **Admittance** | `franka_admittance_controller` | Compliant yielding: $$ \dot{q}^*_d(t) = \alpha \hat{\tau}_{ext}(t) with \alpha = 0.05 $$ |
+| **Joint Retraction** | `franka_joint_retract_controller` | Smooth quintic retraction away from impact torque: $$q_d^*(t) = q(t_{cd}) + \frac{\delta \tau_{ext}(t_{cd})}{\lVert J_{Cart} \tau_{ext}(t_{cd}) \rVert} \text{with }\delta = 0.05$$ |
+| **Cartesian Retraction** | `franka_cartesian_retract_controller` | Smooth Cartesian retraction away from contact force: $$x_d^*(t) = x(t_{cd}) + \begin{pmatrix} \frac{\gamma f_{ext}(t_{cd})}{\lVert f_{ext}(t_{cd}) \rVert} \\ 0 \end{pmatrix} \text{with }\gamma = 0.09 $$ |
 
 ### 3. `task_controllers`
 Implements nominal task behaviours:
@@ -72,7 +72,7 @@ The `ros2_control` controller plugin (`ReflexMultimodeController`) loaded by `co
 ## Prerequisites & Build
 
 ### 1. Install `multipanda_ros2`
-Follow the setup instructions at [github.com/tenfoldpaper/multipanda_ros2](https://github.com/tenfoldpaper/multipanda_ros2).
+Follow the setup instructions at [github.com/tenfoldpaper/multipanda_ros2](https://github.com/tenfoldpaper/multipanda_ros2) via the one-click installer utilizing docker.
 
 ### 2. Build with `--symlink-install`
 Using `--symlink-install` links YAML configuration files, launch scripts, and Python nodes directly to the install directory. This allows editing parameters, tuning thresholds, or swapping reflex behaviours without having to recompile each time:
@@ -164,6 +164,7 @@ controller_manager
   - [x] ~~`zero_g`, `super_zero_g`, `stop`, `admittance`, `joint_retract`, `cartesian_retract`~~
 - [x] ~~**Demo examples:**~~
   - [x] ~~Interactive and Figure 8 motion~~
+- [ ] **Documentation - How to add reflexes to your own controllers**
 - [ ] **Integration of task relaxing and task preserving reflexes:**
   - Motion / Force Adaptation
   - Impedance Reaction
