@@ -1,15 +1,17 @@
 # franka_reflex_engine
 
-[![ROS 2](https://img.shields.io/badge/ROS2-22314E?logo=ros&logoColor=white)](https://www.ros.org/) [![MuJoCo](https://img.shields.io/badge/Simulation-MuJoCo-2ECC71)](https://mujoco.org/) [![Humble](https://img.shields.io/badge/Humble-3498DB?logo=ros&logoColor=white)](https://docs.ros.org/en/humble/) [![Franka Panda](https://img.shields.io/badge/Robot-Franka%20Panda-E74C3C)](https://franka.de/) [![multipanda_ros2](https://img.shields.io/badge/multipanda__ros2-compatible-8E44AD)](https://github.com/tenfoldpaper/multipanda_ros2) 
+[![ROS 2](https://img.shields.io/badge/ROS2-22314E?logo=ros&logoColor=white)](https://www.ros.org/) [![MuJoCo](https://img.shields.io/badge/Simulation-MuJoCo-2ECC71)](https://mujoco.org/) [![Humble](https://img.shields.io/badge/Humble-3498DB?logo=ros&logoColor=white)](https://docs.ros.org/en/humble/) [![Franka Panda](https://img.shields.io/badge/Robot-Franka%20Panda-E74C3C)](https://franka.de/) [![Powered by](https://img.shields.io/badge/powered%20by-multipanda__ros2-8E44AD)](https://github.com/tenfoldpaper/multipanda_ros2) 
 
 ROS 2 packages that add **safe robot reflex behaviours** to Franka Panda manipulators, built on top of the multimodal controller framework from [multipanda_ros2](https://github.com/tenfoldpaper/multipanda_ros2).
+
+<img width="1280" height="720" alt="reflex_repo_intro" src="https://github.com/user-attachments/assets/c97e5f29-bdac-4698-9c96-2dcce7b39f39" />
 
 The framework implements the reflex behaviours proposed in:
 > **J. Vorndamme, A. Melone, R. Kirschner, L. Figueredo and S. Haddadin,**, 
 > *"Safe Robot Reflexes: A Taxonomy-Based Decision and Modulation Framework,"*  IEEE Transactions on Robotics (T-RO), 2025.  
 > **Paper link:** [https://ieeexplore.ieee.org/document/10804590](https://ieeexplore.ieee.org/document/10804590)
 
-The core idea is a real-time **reflex engine** that monitors the robot at 1 kHz and transparently switches the active controller when a hazard (collision, joint position limit, joint velocity limit) is detected — without restarting or reconfiguring `ros2_control` by utilizing the fast swiching capabilities of multimodal controller as described in:
+The core idea is a real-time **reflex engine** that monitors the robot at 1 kHz and transparently switches the active controller when a hazard (collision, joint position/velocity/acceleration limit) is detected — without restarting or reconfiguring `ros2_control` by utilizing the fast swiching capabilities of multimodal controller as described in:
 > **J. Škerlj, S. Bien, A. Naceri and S. Haddadin,**, 
 > *"Bridging the Sim-to-Real Gap with multipanda_ros2: A Real-Time ROS 2 Framework for Multimanual Systems,"*  2026 IEEE International Conference on Robotics and Automation (ICRA).  
 > **Paper link:** [https://ieeexplore.ieee.org/document/11696149](https://ieeexplore.ieee.org/document/11696149)
