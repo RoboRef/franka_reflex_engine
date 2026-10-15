@@ -38,12 +38,12 @@ Implements the core `PandaControllerInterface` along with the **task-abandoning 
 
 | Reflex | Controller | Behaviour / Control Law |
 |---|---|---|
-| **Stop** | `franka_stop_controller` | Freezes at current position with high stiffness and smooth velocity ramp-down: $q_d^*(t) = q(t_{cd})$ |
-| **Zero-G** | `franka_zero_g_controller` | Weightless and backdrivable with protective soft joint-limit walls: $\tau = \tau_g(t)$ |
-| **Super Zero-G** | `franka_super_zero_g_controller` | Active assistance to feel lighter than zero-G: $\tau = \tau_g(t) - \beta \tau_{ext}$, with $\beta = 0.5$ |
-| **Admittance** | `franka_admittance_controller` | Compliant yielding: $\dot{q}_d^*(t) = \alpha \hat{\tau}_{ext}(t)$, with $\alpha = 0.05$ |
-| **Joint Retraction** | `franka_joint_retract_controller` | Smooth quintic retraction away from impact torque: $q_d^*(t) = q(t_{cd}) + \frac{\delta \tau_{ext}(t_{cd})}{\Vert J_{Cart} \tau_{ext}(t_{cd}) \Vert}$, with $\delta = 0.05$ |
-| **Cartesian Retraction** | `franka_cartesian_retract_controller` | Smooth Cartesian retraction away from contact force: $x_d^*(t) = x(t_{cd}) + \begin{pmatrix} \frac{\gamma f_{ext}(t_{cd})}{\Vert f_{ext}(t_{cd}) \Vert} \\\\ 0 \end{pmatrix}$, with $\gamma = 0.09$ |
+| **Stop** | `franka_stop_controller` | Freezes at current position at hazard time $t\_{cd}$:<br> $$q\_d^*(t) = q(t\_{cd})$$ |
+| **Zero-G** | `franka_zero_g_controller` | Weightless and backdrivable with protective soft joint-limit walls:<br> $$\tau = \tau\_g(t)$$ |
+| **Super Zero-G** | `franka_super_zero_g_controller` | Active assistance to feel lighter than zero-G:<br> $$\tau = \tau\_g(t) - \beta \tau\_{ext}\text{, with }\beta = 0.5$$ |
+| **Admittance** | `franka_admittance_controller` | Compliant yielding:<br> $$\dot{q}\_d^*(t) = \alpha \tau\_{ext}(t)\text{, with }\alpha = 0.05$$ |
+| **Joint Retraction** | `franka_joint_retract_controller` | Smooth quintic retraction away from impact torque: $$q\_d^*(t) = q(t\_{cd}) - \delta \frac{\tau\_{ext}(t\_{cd})}{\Vert J\_{Cart} \tau\_{ext}(t\_{cd}) \Vert}\text{, with }\delta = 0.05$$ |
+| **Cartesian Retraction** | `franka_cartesian_retract_controller` | Smooth Cartesian retraction away from contact force: $$x\_d^*(t) = x(t\_{cd}) - \left[ \gamma \frac{f\_{ext}(t\_{cd})}{\Vert f\_{ext}(t\_{cd}) \Vert}, 0 \right]^T\text{, with }\gamma = 0.09$$ |
 
 ### 3. `task_controllers`
 Implements nominal task behaviours:
