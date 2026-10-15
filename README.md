@@ -4,7 +4,7 @@
 
 ROS 2 packages that add **safe robot reflex behaviours** to Franka Panda manipulators, built on top of the multimodal controller framework from [multipanda_ros2](https://github.com/tenfoldpaper/multipanda_ros2).
 
-<img width="1280" height="720" alt="reflex_repo_intro" src="https://github.com/user-attachments/assets/24cd5491-68d1-4829-bf18-0821de1ffde6" />
+https://github.com/user-attachments/assets/24cd5491-68d1-4829-bf18-0821de1ffde6
 
 The framework implements the reflex behaviours proposed in:
 > **J. Vorndamme, A. Melone, R. Kirschner, L. Figueredo and S. Haddadin,**, 
@@ -38,12 +38,12 @@ Implements the core `PandaControllerInterface` along with the **task-abandoning 
 
 | Reflex | Controller | Behaviour / Control Law |
 |---|---|---|
-| **Stop** | `franka_stop_controller` | Freezes at current position with high stiffness and smooth velocity ramp-down: $$q_d^*(t) = q(t_{cd})$$ |
-| **Zero-G** | `franka_zero_g_controller` | Weightless and backdrivable with protective soft joint-limit walls: $$\tau =\tau_g(t)$$ |
-| **Super Zero-G** | `franka_super_zero_g_controller` | Active assistance to feel lighter than zero-G: $$\tau =\tau_g(t) -\beta \tau_{ext},\text{with }\beta = 0.5$$ |
-| **Admittance** | `franka_admittance_controller` | Compliant yielding: $$ \dot{q}^*_d(t) = \alpha \hat{\tau}_{ext}(t) with \alpha = 0.05 $$ |
-| **Joint Retraction** | `franka_joint_retract_controller` | Smooth quintic retraction away from impact torque: $$q_d^*(t) = q(t_{cd}) + \frac{\delta \tau_{ext}(t_{cd})}{\lVert J_{Cart} \tau_{ext}(t_{cd}) \rVert} \text{with }\delta = 0.05$$ |
-| **Cartesian Retraction** | `franka_cartesian_retract_controller` | Smooth Cartesian retraction away from contact force: $$x_d^*(t) = x(t_{cd}) + \begin{pmatrix} \frac{\gamma f_{ext}(t_{cd})}{\lVert f_{ext}(t_{cd}) \rVert} \\ 0 \end{pmatrix} \text{with }\gamma = 0.09 $$ |
+| **Stop** | `franka_stop_controller` | Freezes at current position with high stiffness and smooth velocity ramp-down: $q_d^*(t) = q(t_{cd})$ |
+| **Zero-G** | `franka_zero_g_controller` | Weightless and backdrivable with protective soft joint-limit walls: $\tau = \tau_g(t)$ |
+| **Super Zero-G** | `franka_super_zero_g_controller` | Active assistance to feel lighter than zero-G: $\tau = \tau_g(t) - \beta \tau_{ext}$, with $\beta = 0.5$ |
+| **Admittance** | `franka_admittance_controller` | Compliant yielding: $\dot{q}_d^*(t) = \alpha \hat{\tau}_{ext}(t)$, with $\alpha = 0.05$ |
+| **Joint Retraction** | `franka_joint_retract_controller` | Smooth quintic retraction away from impact torque: $q_d^*(t) = q(t_{cd}) + \frac{\delta \tau_{ext}(t_{cd})}{\Vert J_{Cart} \tau_{ext}(t_{cd}) \Vert}$, with $\delta = 0.05$ |
+| **Cartesian Retraction** | `franka_cartesian_retract_controller` | Smooth Cartesian retraction away from contact force: $x_d^*(t) = x(t_{cd}) + \begin{pmatrix} \frac{\gamma f_{ext}(t_{cd})}{\Vert f_{ext}(t_{cd}) \Vert} \\\\ 0 \end{pmatrix}$, with $\gamma = 0.09$ |
 
 ### 3. `task_controllers`
 Implements nominal task behaviours:
