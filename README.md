@@ -4,7 +4,7 @@
 
 ROS 2 packages that add **safe robot reflex behaviours** to Franka Panda manipulators, built on top of the multimodal controller framework from [multipanda_ros2](https://github.com/tenfoldpaper/multipanda_ros2).
 
-<img width="1280" height="720" alt="reflex_repo_intro" src="https://github.com/user-attachments/assets/c97e5f29-bdac-4698-9c96-2dcce7b39f39" />
+<img width="1280" height="720" alt="reflex_repo_intro" src="https://github.com/user-attachments/assets/24cd5491-68d1-4829-bf18-0821de1ffde6" />
 
 The framework implements the reflex behaviours proposed in:
 > **J. Vorndamme, A. Melone, R. Kirschner, L. Figueredo and S. Haddadin,**, 
